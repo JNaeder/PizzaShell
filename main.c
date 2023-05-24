@@ -9,6 +9,7 @@
 #include <sys/wait.h>
 #include <fcntl.h>
 #include <signal.h>
+#include <time.h>
 
 #ifndef MAX_WORDS
 #define MAX_WORDS 512
@@ -38,6 +39,7 @@ struct sigaction default_SIGTSTP;
 extern char *logo_header;
 extern char *title_text;
 extern char *help_menu;
+char* pizza_toppings[20];
 
 int main(int argc, char *argv[])
 {
@@ -53,6 +55,7 @@ int main(int argc, char *argv[])
 
     char *line = NULL;
     size_t n = 0;
+    srand(time(NULL));
 
     // Get Original signal states
     sigaction(SIGINT, NULL, &default_SIGINT);
@@ -87,7 +90,7 @@ int main(int argc, char *argv[])
         if (input == stdin) {
             // This is interactive.
             //Print prompt
-            fprintf(stderr, "(>");
+            fprintf(stderr, "(> ");
 
             // Ignore SIGTSTP Signal
             signal(SIGTSTP, SIG_IGN);
@@ -102,10 +105,6 @@ int main(int argc, char *argv[])
 
             // Get a line from the input
             line_len = getline(&line, &n, input);
-            if(line_len < 0){
-                // fprintf(stderr, "\n");
-                // printf("Hi\n");
-            }
             signal(SIGINT, SIG_IGN);
         } else {
             // This is not
@@ -140,6 +139,13 @@ int main(int argc, char *argv[])
                 builtin_cd(words);
             } else if (strcmp(words[0], "help") == 0){
                 printf("%s", help_menu);
+            }
+            else if (strcmp(words[0], "pizza") == 0){
+                printf("%s", logo_header);
+            }
+            else if (strcmp(words[0], "topping") == 0){
+                int size = sizeof(pizza_toppings) / sizeof(pizza_toppings[0]);
+                printf("%s\n", pizza_toppings[rand() % size]);
             }
             else run_command(words, nwords);
 
